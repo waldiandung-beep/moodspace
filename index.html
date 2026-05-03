@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>MoodSpace by Leo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            color: white;
+            text-align: center;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            transition: 0.5s;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #1e1e1e, #000);
+            }
+        }
+
+        .container {
+            padding-top: 40px;
+        }
+
+        h1 {
+            font-size: 38px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            margin: 20px auto;
+            width: 320px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        button {
+            padding: 12px 18px;
+            margin: 8px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            background: white;
+            color: black;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+            background: black;
+            color: white;
+        }
+
+        #quote {
+            margin-top: 15px;
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        #timer {
+            font-size: 35px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🌊 MoodSpace by Leo</h1>
+        <p>Relax • Focus • Heal</p>
+
+        <div class="card">
+            <h3>Pilih Mood</h3>
+            <button onclick="setMood('tenang')">😌 Tenang</button>
+            <button onclick="setMood('sedih')">😢 Sedih</button>
+            <button onclick="setMood('fokus')">🎧 Fokus</button>
+        </div>
+
+        <div class="card">
+            <h3>Quote</h3>
+            <p id="quote">Klik mood dulu ya...</p>
+        </div>
+
+        <div class="card">
+            <h3>Focus Timer</h3>
+            <div id="timer">25:00</div>
+            <button onclick="startTimer()">Start</button>
+            <button onclick="resetTimer()">Reset</button>
+            <br>
+            <button onclick="downloadApp()">Download</button>
+        </div>
+
+    </div>
+
+    <audio id="sound" loop></audio>
+
+    <script>
+
+        // AUTO LOAD MOOD
+        window.onload = () => {
+            let lastMood = localStorage.getItem("mood");
+            if (lastMood) setMood(lastMood);
+        };
+
+        // MOOD FUNCTION
+        function setMood(mood) {
+
+            let quotes = {
+                tenang: ["Tarik napas... semuanya akan baik 🌊"],
+                sedih: ["Kamu tidak sendiri 💙"],
+                fokus: ["Fokus, kamu pasti bisa 🎧"]
+            };
+
+            let colors = {
+                tenang: "linear-gradient(135deg, #4facfe, #00f2fe)",
+                sedih: "linear-gradient(135deg, #8360c3, #2ebf91)",
+                fokus: "linear-gradient(135deg, #ff512f, #dd2476)"
+            };
+
+            let sounds = {
+                tenang: "ocean.mp3",
+                sedih: "rain.mp3",
+                fokus: "focus.mp3"
+            };
+
+            // SAVE MOOD
+            localStorage.setItem("mood", mood);
+
+            document.body.style.background = colors[mood];
+            document.getElementById("quote").innerText = quotes[mood][0];
+
+            let audio = document.getElementById("sound");
+            audio.pause();
+            audio.currentTime = 0;
+            audio.src = sounds[mood];
+            audio.play();
+        }
+
+
+        // TIMER
+        let time = 1500;
+        let running = false;
+        let interval;
+
+        function startTimer() {
+            if (running) return;
+            running = true;
+
+            interval = setInterval(() => {
+                let min = Math.floor(time / 60);
+                let sec = time % 60;
+
+                document.getElementById("timer").innerText =
+                    `${min}:${sec < 10 ? '0' : ''}${sec}`;
+
+                time--;
+
+                if (time < 0) {
+                    clearInterval(interval);
+                    alert("Selesai 🔥");
+                    running = false;
+                    time = 1500;
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(interval);
+            time = 1500;
+            running = false;
+            document.getElementById("timer").innerText = "25:00";
+        }
+
+        // DOWNLOAD BUTTON
+        function downloadApp() {
+            alert("Web ini bisa kamu kirim ke client dalam bentuk file 😊");
+        }
+
+    </script>
+
+</body>
+
+</html>
