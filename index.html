@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>MoodSpace Pro</title>
+  <title>MoodSpace PRO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
@@ -122,6 +122,7 @@ function toggleDark() {
 
 // TIMER
 let time = 1500;
+
 function startTimer() {
   let interval = setInterval(() => {
     let min = Math.floor(time / 60);
@@ -131,6 +132,7 @@ function startTimer() {
       `${min}:${sec < 10 ? '0' : ''}${sec}`;
 
     time--;
+
     if (time < 0) clearInterval(interval);
   }, 1000);
 }
