@@ -79,6 +79,7 @@
     <h3>Timer</h3>
     <div id="timer">25:00</div>
     <button onclick="startTimer()">Start</button>
+    <button onclick="resetTimer()">Reset</button>
   </div>
 
 </div>
@@ -86,6 +87,8 @@
 <audio id="sound" loop></audio>
 
 <script>
+
+// AUDIO
 let currentSound = "";
 
 function setMood(mood) {
@@ -116,15 +119,21 @@ function stopSound() {
   audio.currentTime = 0;
 }
 
+// DARK MODE
 function toggleDark() {
   document.body.classList.toggle("dark");
 }
 
-// TIMER
+// TIMER (FIX ANTI ERROR)
 let time = 1500;
+let running = false;
+let interval;
 
 function startTimer() {
-  let interval = setInterval(() => {
+  if (running) return;
+  running = true;
+
+  interval = setInterval(() => {
     let min = Math.floor(time / 60);
     let sec = time % 60;
 
@@ -133,9 +142,23 @@ function startTimer() {
 
     time--;
 
-    if (time < 0) clearInterval(interval);
+    if (time < 0) {
+      clearInterval(interval);
+      running = false;
+      time = 1500;
+      document.getElementById("timer").innerText = "25:00";
+      alert("Waktu selesai 🔥");
+    }
   }, 1000);
 }
+
+function resetTimer() {
+  clearInterval(interval);
+  time = 1500;
+  running = false;
+  document.getElementById("timer").innerText = "25:00";
+}
+
 </script>
 
 </body>
