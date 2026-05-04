@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>MoodSpace PRO</title>
+  <title>MoodSpace ULTRA+</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
@@ -11,75 +11,100 @@
       font-family: 'Segoe UI', sans-serif;
       color: white;
       text-align: center;
-      background: linear-gradient(135deg, #4facfe, #00f2fe);
-      transition: 0.8s;
+      overflow: hidden;
+      background: linear-gradient(135deg, #667eea, #764ba2);
     }
 
-    .dark {
-      background: linear-gradient(135deg, #1e1e1e, #000);
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
     }
 
     .container {
+      position: relative;
+      z-index: 1;
       padding-top: 40px;
     }
 
     .card {
       background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(15px);
+      backdrop-filter: blur(20px);
       padding: 25px;
       margin: 20px auto;
-      width: 320px;
+      width: 330px;
       border-radius: 25px;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-      transition: 0.3s;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      transition: 0.4s;
     }
 
     .card:hover {
-      transform: scale(1.05);
+      transform: translateY(-10px) scale(1.03);
     }
 
     button {
-      padding: 12px;
+      padding: 12px 16px;
       margin: 6px;
       border-radius: 20px;
       border: none;
       cursor: pointer;
       font-weight: bold;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      transition: 0.3s;
     }
 
-    #timer {
-      font-size: 35px;
+    button:hover {
+      background: white;
+      color: black;
+      transform: scale(1.1);
+    }
+
+    textarea {
+      width: 90%;
+      height: 80px;
+      border-radius: 15px;
+      border: none;
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    #quote {
+      margin-top: 10px;
+      font-style: italic;
     }
   </style>
 </head>
 
 <body>
 
+<canvas id="bg"></canvas>
+
 <div class="container">
 
-  <h1>🌊 MoodSpace PRO</h1>
-
-  <button onclick="toggleDark()">🌙 Dark Mode</button>
+  <h1>🌊 MoodSpace ULTRA+</h1>
+  <p>Feel • Relax • Focus ✨</p>
 
   <div class="card">
     <h3>Mood</h3>
     <button onclick="setMood('tenang')">😌</button>
     <button onclick="setMood('sedih')">😢</button>
     <button onclick="setMood('fokus')">🎧</button>
+    <p id="quote">Pilih mood dulu...</p>
   </div>
 
   <div class="card">
-    <h3>Sound Control</h3>
-    <button onclick="playSound()">▶️ Play</button>
-    <button onclick="pauseSound()">⏸️ Pause</button>
-    <button onclick="stopSound()">⏹️ Stop</button>
+    <h3>Sound</h3>
+    <button onclick="playSound()">▶️</button>
+    <button onclick="pauseSound()">⏸️</button>
+    <button onclick="stopSound()">⏹️</button>
   </div>
 
   <div class="card">
-    <h3>Timer</h3>
-    <div id="timer">25:00</div>
-    <button onclick="startTimer()">Start</button>
-    <button onclick="resetTimer()">Reset</button>
+    <h3>Journal</h3>
+    <textarea id="note" placeholder="Tulis perasaan kamu..."></textarea><br>
+    <button onclick="saveNote()">💾 Simpan</button>
   </div>
 
 </div>
@@ -88,7 +113,95 @@
 
 <script>
 
-// AUDIO
+// PARTICLE BACKGROUND
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+for (let i = 0; i < 80; i++) {
+  particles.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    size: Math.random() * 3,
+    speedX: Math.random() - 0.5,
+    speedY: Math.random() - 0.5
+  });
+}
+
+function animate() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  particles.forEach(p => {
+    p.x += p.speedX;
+    p.y += p.speedY;
+
+    if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+    if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.fill();
+  });
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+// AUTO LOAD
+window.onload = () => {
+  let savedMood = localStorage.getItem("mood");
+  let savedNote = localStorage.getItem("note");
+
+  if (savedMood) setMood(savedMood);
+  if (savedNote) document.getElementById("note").value = savedNote;
+};
+
+// QUOTES
+let quotes = {
+  tenang: [
+    "Tenang... semuanya akan baik 🌊",
+    "Nikmati momen ini 😌",
+    "Hidup tidak perlu terburu",
+    "Damai itu indah",
+    "Tarik napas, lepaskan beban",
+    "Kamu aman di sini",
+    "Pelan-pelan saja",
+    "Biarkan semua mengalir",
+    "Ketenangan adalah kekuatan",
+    "Diam juga berarti"
+  ],
+  sedih: [
+    "Kamu tidak sendiri 💙",
+    "Tidak apa-apa merasa sedih",
+    "Hari ini berat, tapi kamu kuat",
+    "Semua akan berlalu",
+    "Istirahatlah sejenak",
+    "Kamu hebat sudah bertahan",
+    "Besok lebih baik",
+    "Pelan-pelan sembuh",
+    "Air mata itu wajar",
+    "Kamu berharga"
+  ],
+  fokus: [
+    "Fokus, kamu pasti bisa 🎧",
+    "Mulai sekarang",
+    "Jangan tunda",
+    "Disiplin adalah kunci",
+    "Kerja keras hari ini",
+    "Langkah kecil berarti",
+    "Tetap konsisten",
+    "Kamu hampir sampai",
+    "Jangan menyerah",
+    "Gas terus 🔥"
+  ]
+};
+
 let currentSound = "";
 
 function setMood(mood) {
@@ -98,10 +211,16 @@ function setMood(mood) {
     fokus: "focus.mp3"
   };
 
+  localStorage.setItem("mood", mood);
+
+  let random = quotes[mood][Math.floor(Math.random()*quotes[mood].length)];
+  document.getElementById("quote").innerText = random;
+
   currentSound = sounds[mood];
   playSound();
 }
 
+// AUDIO
 function playSound() {
   let audio = document.getElementById("sound");
   audio.src = currentSound;
@@ -119,44 +238,11 @@ function stopSound() {
   audio.currentTime = 0;
 }
 
-// DARK MODE
-function toggleDark() {
-  document.body.classList.toggle("dark");
-}
-
-// TIMER (FIX ANTI ERROR)
-let time = 1500;
-let running = false;
-let interval;
-
-function startTimer() {
-  if (running) return;
-  running = true;
-
-  interval = setInterval(() => {
-    let min = Math.floor(time / 60);
-    let sec = time % 60;
-
-    document.getElementById("timer").innerText =
-      `${min}:${sec < 10 ? '0' : ''}${sec}`;
-
-    time--;
-
-    if (time < 0) {
-      clearInterval(interval);
-      running = false;
-      time = 1500;
-      document.getElementById("timer").innerText = "25:00";
-      alert("Waktu selesai 🔥");
-    }
-  }, 1000);
-}
-
-function resetTimer() {
-  clearInterval(interval);
-  time = 1500;
-  running = false;
-  document.getElementById("timer").innerText = "25:00";
+// SAVE NOTE
+function saveNote() {
+  let text = document.getElementById("note").value;
+  localStorage.setItem("note", text);
+  alert("Tersimpan 💙");
 }
 
 </script>
