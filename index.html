@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>MoodSpace ULTRA+</title>
+  <title>MoodSpace ULTRA FINAL</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
@@ -26,6 +26,12 @@
       position: relative;
       z-index: 1;
       padding-top: 40px;
+      animation: fadeIn 1.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(20px);}
+      to {opacity: 1; transform: translateY(0);}
     }
 
     .card {
@@ -83,8 +89,7 @@
 
 <div class="container">
 
-  <h1>🌊 MoodSpace ULTRA+</h1>
-  <p>Feel • Relax • Focus ✨</p>
+  <h1>🌊 MoodSpace ULTRA FINAL</h1>
 
   <div class="card">
     <h3>Mood</h3>
@@ -103,7 +108,7 @@
 
   <div class="card">
     <h3>Journal</h3>
-    <textarea id="note" placeholder="Tulis perasaan kamu..."></textarea><br>
+    <textarea id="note"></textarea><br>
     <button onclick="saveNote()">💾 Simpan</button>
   </div>
 
@@ -113,137 +118,109 @@
 
 <script>
 
-// PARTICLE BACKGROUND
+// PARTICLES
 const canvas = document.getElementById("bg");
 const ctx = canvas.getContext("2d");
-
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 let particles = [];
-
 for (let i = 0; i < 80; i++) {
   particles.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    size: Math.random() * 3,
-    speedX: Math.random() - 0.5,
-    speedY: Math.random() - 0.5
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height,
+    size: Math.random()*3,
+    dx: Math.random()-0.5,
+    dy: Math.random()-0.5
   });
 }
 
 function animate() {
   ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  particles.forEach(p => {
-    p.x += p.speedX;
-    p.y += p.speedY;
-
-    if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
-    if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+  particles.forEach(p=>{
+    p.x+=p.dx;
+    p.y+=p.dy;
+    if(p.x<0||p.x>canvas.width)p.dx*=-1;
+    if(p.y<0||p.y>canvas.height)p.dy*=-1;
 
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+    ctx.fillStyle="rgba(255,255,255,0.5)";
     ctx.fill();
   });
-
   requestAnimationFrame(animate);
 }
-
 animate();
-
-// AUTO LOAD
-window.onload = () => {
-  let savedMood = localStorage.getItem("mood");
-  let savedNote = localStorage.getItem("note");
-
-  if (savedMood) setMood(savedMood);
-  if (savedNote) document.getElementById("note").value = savedNote;
-};
 
 // QUOTES
 let quotes = {
-  tenang: [
-    "Tenang... semuanya akan baik 🌊",
-    "Nikmati momen ini 😌",
-    "Hidup tidak perlu terburu",
-    "Damai itu indah",
-    "Tarik napas, lepaskan beban",
-    "Kamu aman di sini",
-    "Pelan-pelan saja",
-    "Biarkan semua mengalir",
-    "Ketenangan adalah kekuatan",
-    "Diam juga berarti"
-  ],
-  sedih: [
-    "Kamu tidak sendiri 💙",
-    "Tidak apa-apa merasa sedih",
-    "Hari ini berat, tapi kamu kuat",
-    "Semua akan berlalu",
-    "Istirahatlah sejenak",
-    "Kamu hebat sudah bertahan",
-    "Besok lebih baik",
-    "Pelan-pelan sembuh",
-    "Air mata itu wajar",
-    "Kamu berharga"
-  ],
-  fokus: [
-    "Fokus, kamu pasti bisa 🎧",
-    "Mulai sekarang",
-    "Jangan tunda",
-    "Disiplin adalah kunci",
-    "Kerja keras hari ini",
-    "Langkah kecil berarti",
-    "Tetap konsisten",
-    "Kamu hampir sampai",
-    "Jangan menyerah",
-    "Gas terus 🔥"
-  ]
+  tenang:["Tenang... semuanya akan baik 🌊","Nikmati momen ini","Pelan-pelan saja","Kamu aman","Damai itu indah","Tarik napas","Hidup tidak buru-buru","Biarkan mengalir","Ketenangan itu kuat","Diam juga berarti"],
+  sedih:["Kamu tidak sendiri 💙","Tidak apa-apa sedih","Kamu kuat","Hari ini berat","Besok lebih baik","Pelan sembuh","Istirahatlah","Air mata wajar","Kamu berharga","Semua berlalu"],
+  fokus:["Fokus, kamu bisa 🎧","Mulai sekarang","Jangan tunda","Disiplin kunci","Kerja keras","Langkah kecil","Konsisten","Jangan menyerah","Gas terus","Dekat tujuan"]
 };
 
-let currentSound = "";
+let currentSound="";
+let audio=document.getElementById("sound");
 
-function setMood(mood) {
-  let sounds = {
-    tenang: "ocean.mp3",
-    sedih: "rain.mp3",
-    fokus: "focus.mp3"
+// FIX SOUND (NO BUG + FADE)
+function setMood(mood){
+  let sounds={
+    tenang:"ocean.mp3",
+    sedih:"rain.mp3",
+    fokus:"focus.mp3"
   };
 
-  localStorage.setItem("mood", mood);
+  localStorage.setItem("mood",mood);
 
-  let random = quotes[mood][Math.floor(Math.random()*quotes[mood].length)];
-  document.getElementById("quote").innerText = random;
+  let q=quotes[mood][Math.floor(Math.random()*quotes[mood].length)];
+  document.getElementById("quote").innerText=q;
 
-  currentSound = sounds[mood];
-  playSound();
-}
+  currentSound=sounds[mood];
 
-// AUDIO
-function playSound() {
-  let audio = document.getElementById("sound");
-  audio.src = currentSound;
-  audio.volume = 0.5;
-  audio.play();
-}
-
-function pauseSound() {
-  document.getElementById("sound").pause();
-}
-
-function stopSound() {
-  let audio = document.getElementById("sound");
   audio.pause();
-  audio.currentTime = 0;
+  audio.currentTime=0;
+  audio.src=currentSound;
+
+  audio.volume=0;
+  audio.play().then(()=>{
+    let vol=0;
+    let fade=setInterval(()=>{
+      if(vol<0.5){
+        vol+=0.05;
+        audio.volume=vol;
+      }else{
+        clearInterval(fade);
+      }
+    },100);
+  }).catch(()=>{});
 }
+
+// CONTROL
+function playSound(){ audio.play(); }
+function pauseSound(){ audio.pause(); }
+function stopSound(){ audio.pause(); audio.currentTime=0; }
+
+// AUTO QUOTE
+setInterval(()=>{
+  let mood=localStorage.getItem("mood");
+  if(!mood)return;
+  let q=quotes[mood][Math.floor(Math.random()*quotes[mood].length)];
+  document.getElementById("quote").innerText=q;
+},5000);
 
 // SAVE NOTE
-function saveNote() {
-  let text = document.getElementById("note").value;
-  localStorage.setItem("note", text);
+function saveNote(){
+  localStorage.setItem("note",document.getElementById("note").value);
   alert("Tersimpan 💙");
 }
+
+// LOAD
+window.onload=()=>{
+  let m=localStorage.getItem("mood");
+  let n=localStorage.getItem("note");
+  if(m)setMood(m);
+  if(n)document.getElementById("note").value=n;
+};
 
 </script>
 
